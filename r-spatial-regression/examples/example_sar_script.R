@@ -1,5 +1,6 @@
 # Example script for running Multivariate and Univariate Spatial Regression Decisions
 # Paper: Johnson, I., Sengupta, S., Schoening J., and Hecht, B. The Geography and Importance of Localness in Geotagged Social Media. CHI 2016.
+# Slightly different results from the paper may arise because a variable related to politics is not included in this example data.
 
 if ("spdep" %in% rownames(installed.packages()) == FALSE) {
     install.packages("spdep")
