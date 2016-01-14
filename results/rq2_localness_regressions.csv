@@ -1,0 +1,17 @@
+REPOSITORY,FILTER,DEPENDENT_VARIABLE,MODEL_TYPE,DV_TRANSFORMATION,SD_BEFORE_SCALING,PCT_URBAN_POP_MULTIVARIATE_BETA,HMI_MULTIVARIATE_BETA,MED_AGE_MULTIVARIATE_BETA,WNL_MULTIVARIATE_BETA,MBSA_MULTIVARIATE_BETA
+T-51M,n-days (10),Percent Local VGI,Spatial Lag,Scaled,0.171,0.2906***,-0.0614**,-0.1809***,0.1525***,-0.0523**
+T-11M,n-days (10),Percent Local VGI,Spatial Error,Scaled,0.213,0.4025***,-0.0398,-0.1432***,0.0222,-0.0408*
+F-15M,n-days (10),Percent Local VGI,Spatial Lag,Scaled,0.291,0.278***,-0.0111,-0.0641**,0.144***,0.0656***
+S-8M,n-days (10),Percent Local VGI,Spatial Lag,Scaled,0.345,0.3786***,0.0082,-0.1772***,0.1608***,0.0203
+T-51M,location field,Percent Local VGI,Spatial Error,"Logged, Scaled",1.583,0.3755***,-0.0136,-0.133***,0.229***,-0.1046***
+T-11M,location field,Percent Local VGI,Spatial Lag,"Logged, Scaled",1.940,0.4198***,-0.0383.,-0.1729***,0.2041***,-0.0275
+F-15M,location field,Percent Local VGI,Spatial Lag,"Logged, Scaled",2.131,0.3804***,-0.0406*,-0.0948***,0.0985***,0.229***
+S-8M,location field,Percent Local VGI,Spatial Lag,"Logged, Scaled",0.202,0.0082,-0.0023,-0.0045,-0.0331,0.0373.
+T-51M,plurality,Percent Local VGI,Spatial Lag,Scaled,0.184,0.2984***,-0.0788***,-0.2311***,0.161***,-0.0724***
+T-11M,plurality,Percent Local VGI,Spatial Lag,Scaled,0.210,0.1348***,-0.008,-0.1912***,0.0718***,-0.0219
+F-15M,plurality,Percent Local VGI,Spatial Lag,"Logged, Scaled",2.442,0.3017***,-0.0048,-0.0762***,0.119***,0.1054***
+S-8M,plurality,Percent Local VGI,Spatial Error,"Logged, Scaled",2.622,0.4093***,0.04.,-0.1812***,0.2096***,0.0813***
+T-51M,geometric median,Percent Local VGI,Spatial Lag,Scaled,0.210,0.2998***,-0.0791***,-0.2274***,0.1423***,-0.0864***
+T-11M,geometric median,Percent Local VGI,Spatial Lag,Scaled,0.234,0.1868***,-0.0271,-0.176***,0.0142,-0.036.
+F-15M,geometric median,Percent Local VGI,Spatial Lag,"Logged, Scaled",2.585,0.3258***,0.0094,-0.087***,0.1351***,0.1302***
+S-8M,VGI Median,Percent Local VGI,Spatial Error,"Logged, Scaled",2.267,0.4607***,0.0342,-0.1622***,0.1745***,0.1156***

@@ -1,0 +1,50 @@
+FIPS,STATE,RANK_UNFILTERED,RANK_NDAY_LOCAL,RANK_PLURALITY_LOCAL
+30,Montana,1,1,1
+50,Vermont,2,2,3
+23,Maine,3,3,2
+11,District of Columbia,4,5,4
+33,New Hampshire,5,4,5
+46,South Dakota,6,6,7
+27,Minnesota,7,8,6
+29,Missouri,8,9,10
+16,Idaho,9,7,8
+49,Utah,10,10,9
+47,Tennessee,11,12,11
+56,Wyoming,12,11,12
+36,New York,13,20,16
+31,Nebraska,14,13,13
+53,Washington,15,17,14
+32,Nevada,16,26,17
+55,Wisconsin,17,15,19
+4,Arizona,18,16,15
+6,California,19,19,18
+38,North Dakota,20,14,21
+8,Colorado,21,22,22
+20,Kansas,22,18,20
+21,Kentucky,23,25,23
+5,Arkansas,24,24,26
+40,Oklahoma,25,21,24
+12,Florida,26,28,27
+19,Iowa,27,23,25
+25,Massachusetts,28,30,29
+44,Rhode Island,29,27,28
+54,West Virginia,30,29,30
+37,North Carolina,31,31,31
+18,Indiana,32,33,32
+35,New Mexico,33,32,36
+51,Virginia,34,34,33
+34,New Jersey,35,37,37
+17,Illinois,36,35,34
+42,Pennsylvania,37,36,35
+41,Oregon,38,43,40
+48,Texas,39,38,38
+45,South Carolina,40,40,42
+13,Georgia,41,41,41
+39,Ohio,42,39,39
+1,Alabama,43,44,44
+26,Michigan,44,42,43
+9,Connecticut,45,45,45
+28,Mississippi,46,47,47
+10,Delaware,47,46,46
+24,Maryland,48,48,49
+22,Louisiana,49,49,48
