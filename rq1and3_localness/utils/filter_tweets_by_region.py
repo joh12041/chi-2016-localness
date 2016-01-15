@@ -1,10 +1,7 @@
-__author__ = 'joh12041'
+"""Split tweets file up by geography (e.g., one file for all tweets in Pennsylvania, one for Ohio, etc.)"""
 
 import csv
-import json
 import traceback
-import psycopg2
-import psycopg2.extras
 
 REGION = "counties"
 INPUT_FN = "<PATH NAME TO TWITTER LOCALNESS OUTPUT CSV>"
@@ -12,6 +9,40 @@ INPUT_HEADER = ['id', 'created_at', 'text', 'user_screen_name', 'user_descriptio
                  'user_time_zone', 'geom_src', 'uid', 'tweet', 'lon', 'lat', 'gender', 'race',
                   'county', 'nday', 'plurality', 'geomed', 'locfield']
 OUTPUT_BASE_PATH = "<PATH TO FOLDER THAT WILL CONTAIN PARSED TWEET FILES>"
+
+def process_line(output_line, open_fps, state_files, region, fps):
+    if region in open_fps:
+        if not open_fps[region]:
+            # close oldest fp and open one for the current state/county/region/whatever
+            fps[0][1].flush()
+            fps[0][1].close()
+            open_fps[fps[0][0]] = False
+            del(fps[0])
+            fout = open(OUTPUT_BASE_PATH + region + '.csv', 'a')
+            fps.append([region, fout])
+            open_fps[region] = True
+            state_files[region] = csv.writer(fout)
+        state_files[region].writerow(output_line)
+        return 1
+    elif region:
+        try:
+            fout = open(OUTPUT_BASE_PATH + region + '.csv', 'w')
+        except Exception:
+            # close oldest fp and open new one for current region
+            fps[0][1].flush()
+            fps[0][1].close()
+            open_fps[fps[0][0]] = False
+            del(fps[0])
+            fout = open(OUTPUT_BASE_PATH + region + '.csv', 'w')
+        fps.append([region, fout])
+        open_fps[region] = True
+        state_files[region] = csv.writer(fout)
+        state_files[region].writerow(['text','uid', 'nday','plurality'])
+        state_files[region].writerow(output_line)
+        return 1
+    else:
+        return 0
+
 
 def main():
     region_files = {}
@@ -50,38 +81,6 @@ def main():
             fp.flush()
             fp.close()
 
-def process_line(output_line, open_fps, state_files, region, fps):
-    if region in open_fps:
-        if not open_fps[region]:
-            # close oldest fp and open one for the current state/county/region/whatever
-            fps[0][1].flush()
-            fps[0][1].close()
-            open_fps[fps[0][0]] = False
-            del(fps[0])
-            fout = open(OUTPUT_BASE_PATH + region + '.csv', 'a')
-            fps.append([region, fout])
-            open_fps[region] = True
-            state_files[region] = csv.writer(fout)
-        state_files[region].writerow(output_line)
-        return 1
-    elif region:
-        try:
-            fout = open(OUTPUT_BASE_PATH + region + '.csv', 'w')
-        except Exception:
-            # close oldest fp and open new one for current region
-            fps[0][1].flush()
-            fps[0][1].close()
-            open_fps[fps[0][0]] = False
-            del(fps[0])
-            fout = open(OUTPUT_BASE_PATH + region + '.csv', 'w')
-        fps.append([region, fout])
-        open_fps[region] = True
-        state_files[region] = csv.writer(fout)
-        state_files[region].writerow(['text','uid', 'nday','plurality'])
-        state_files[region].writerow(output_line)
-        return 1
-    else:
-        return 0
 
 if __name__ == "__main__":
     main()
