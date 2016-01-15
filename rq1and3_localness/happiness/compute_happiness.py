@@ -237,39 +237,6 @@ def process_happiness_results(scale, input_fn):
             print("Wilcoxon statistic between {0} and unfiltered rankings is {1} with a p-value of {2}.\n".format(name, stat, pval))
 
 
-def update_localness_dict(states, n, p, v, l, state, havg):
-    """
-    Update happiness dictionary for a county/state with a tweet
-    :param states: dictionary containing all results
-    :param n: n-day local (bool)
-    :param p: plurality local (bool)
-    :param v: vgi median local (bool)
-    :param l: location-field local (bool)
-    :param state: FIPS code for state/county where the tweet is from
-    :param havg: happiness for the tweet or None if no "happiness" words in tweet
-    :return: no explicit return, dictionary is updated
-    """
-    local_results = {'n':n, 'p':p, 'v':v, 'l':l}
-    if state not in states:
-        states[state] = {'fips':state}
-        for localness in LOCALNESS_METRICS:
-            states[state]['{0}_local'.format(localness)] = []
-            states[state]['{0}_nonlocal'.format(localness)] = []
-            states[state]['{0}l_excluded'.format(localness)] = 0
-            states[state]['{0}n_excluded'.format(localness)] = 0
-    for localness in LOCALNESS_METRICS:
-        if havg:
-            if local_results[localness]:
-                states[state]['{0}_local'.format(localness)].append(havg)
-            else:
-                states[state]['{0}_nonlocal'.format(localness)].append(havg)
-        else:
-            if local_results[localness]:
-                states[state]['{0}l_excluded'.format(localness)] += 1
-            else:
-                states[state]['{0}n_excluded'.format(localness)] += 1
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--scale", default = "counties", help = "compute happiness by either 'states' or 'counties'")
