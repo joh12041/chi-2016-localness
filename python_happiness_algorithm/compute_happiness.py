@@ -1,23 +1,19 @@
 __author__ = 'isaac'
 
 import csv
-import numpy
 import os
-import psycopg2
-import psycopg2.extras
 import json
 from collections import OrderedDict
 
-import sys
+import numpy
+from scipy.stats import spearmanr
+from scipy.stats import wilcoxon
+import psycopg2
+import psycopg2.extras
 
-sys.path.append("/export/scratch2/isaacj/vgi-localness")
+from python-utils import bots
 
-from utils import bots
 
-#from scipy.stats import spearmanr
-#from scipy.stats import wilcoxon
-
-#localness_metrics = ['n','p','v','l']
 localness_metrics = ['nday','plurality']
 
 
