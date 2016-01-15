@@ -1,17 +1,18 @@
-__author__ = 'joh12041'
-
 import json
-from shapely.wkt import loads
-from shapely.geometry import shape
-from shapely.geometry import box
 import csv
 import argparse
 
-def main(vgi_median=True, locfield=False, vgi_repository='flickr09to12'):
+from shapely.wkt import loads
+from shapely.geometry import shape
+from shapely.geometry import box
 
-    if vgi_median:
-        POINTS_FN = 'vgi_median/{0}/user_medians.csv'.format(vgi_repository)
-        OUTPUT_FN = 'vgi_median/{0}/user_counties.csv'.format(vgi_repository)
+
+def main(geo_median=True, locfield=False, vgi_repository='t51m'):
+
+    # some hacking to get the variables the way that I want them from command line or as called from another function
+    if geo_median:
+        POINTS_FN = 'geo_median/{0}/user_medians.csv'.format(vgi_repository)
+        OUTPUT_FN = 'geo_median/{0}/user_counties.csv'.format(vgi_repository)
         EXPECTED_HEADER = ['uid', 'median']
         OUTPUT_HEADER = ['uid', 'county']
         PT_INDEX = 1
@@ -21,7 +22,6 @@ def main(vgi_median=True, locfield=False, vgi_repository='flickr09to12'):
         EXPECTED_HEADER = ['uid', 'loc_field', 'pt']
         OUTPUT_HEADER = ['uid', 'loc_field', 'county']
         PT_INDEX = 2
-
     parser = argparse.ArgumentParser()
     parser.add_argument('--points_fn', default=POINTS_FN)
     parser.add_argument('--output_fn', default=OUTPUT_FN)
@@ -30,18 +30,29 @@ def main(vgi_median=True, locfield=False, vgi_repository='flickr09to12'):
     parser.add_argument('--pt_index', default=PT_INDEX)
     parser.add_argument('--vgi_repository', default=vgi_repository)
     args = parser.parse_args()
-
     POINTS_FN = args.points_fn
     OUTPUT_FN = args.output_fn
     EXPECTED_HEADER = args.expected_header
     OUTPUT_HEADER = args.output_header
     PT_INDEX = args.pt_index
 
-    with open("geometries/USCounties_bare.geojson", 'r') as fin:
-        counties = json.load(fin)
+    counties_fn = 'resources/USCounties_bare.geojson'
+    with open(counties_fn, 'r') as fin:
+        counties_gj = json.load(fin)
 
-    for county in counties['features']:
-        county['shape'] = shape(county['geometry'])
+    states_fn = 'resources/US_States_from_counties.geojson'
+    with open(states_fn, 'r') as fin:
+        states_gj = json.load(fin)
+
+    counties = {}
+    for state in states_gj['features']:
+        west, south, east, north = shape(state['geometry']).bounds
+        counties[state['properties']['FIPS'][:2]] = {'bb':box(west, south, east, north), 'counties':{}}
+    for region in counties_gj['features']:
+        state_fips = region['properties']['FIPS'][:2]
+        counties[state_fips]['counties'][region['properties']['FIPS']] = shape(region['geometry'])
+    del(counties_gj)
+    del(states_gj)
 
     fast_lookup = {}
 
@@ -74,17 +85,19 @@ def main(vgi_median=True, locfield=False, vgi_repository='flickr09to12'):
                         points_in_US += 1
                     else:
                         if boundingboxUS.contains(pt):
-                            for county_geom in counties['features']:
-                                if county_geom['shape'].contains(pt):
-                                    county = county_geom['properties']['FIPS']
-                                    points_in_US += 1
-                                    fast_lookup[line[PT_INDEX]] = county
-                                    break
+                            for state in counties:
+                                if counties[state]['bb'].contains(pt):
+                                    for fips in counties[state]['counties']:
+                                        if counties[state]['counties'][fips].contains(pt):
+                                            county = fips
+                                            points_in_US += 1
+                                            fast_lookup[line[PT_INDEX]] = county
+                                            break
                 except Exception as e:
                     if line[PT_INDEX]:
                         print(e)
                         print(line)
-                if vgi_median:
+                if geo_median:
                     csvwriter.writerow([uid, county])
                 elif locfield:
                     csvwriter.writerow([uid, line[1], county])
