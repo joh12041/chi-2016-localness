@@ -1,16 +1,15 @@
-__author__ = 'isaac'
-
 import csv
 import json
+
 from shapely.geometry import shape
 
-ADMIN1_FN = "location_field/admin1CodesASCII.txt"
-COUNTIES_GEOJSON = "geometries/USCounties_bare.geojson"
-CITIES1000_FN = "location_field/cities1000.txt"  # for a smaller geocoder with only cities of 1000 people and up + admin capitols
-CITIES_FN = "location_field/allCountries.txt"  # larger geocoder - any place labeled a city regardless of population
-COUNTRIES_FN = "location_field/country_codes.tsv"
-GEONAMES_PARSED_FN = "location_field/geonames_countries.tsv"
-#GEONAMES_PARSED_FN = "location_field/geonames_countries_GlobalJake.tsv"
+# Download from: http://download.geonames.org/export/dump/
+ADMIN1_FN = "resources/admin1CodesASCII.txt"
+CITIES_FN = "resources/allCountries.txt"
+COUNTRIES_FN = "resources/country_codes.tsv"  # from: http://download.geonames.org/export/dump/countryInfo.txt
+
+GEONAMES_PARSED_FN = "resources/geonames_countries.tsv"
+COUNTIES_GEOJSON = "resources/USCounties_bare.geojson"
 COUNT_AMBIGUOUS = 0
 DELIMITER=','
 
@@ -31,7 +30,6 @@ def remove_place(geocoder_dict, place):
         print('{0} not in dict to be deleted.'.format(place))
 
 def main():
-
     countries = {}
     with open(COUNTRIES_FN, 'r') as fin:
         csvreader = csv.reader(fin, delimiter='\t')
@@ -61,8 +59,8 @@ def main():
         geonames = {}
         count = 0
         for line in csvreader:
-            #if line[6] != "U":
-            if line[6] == 'P':  # remove this line if using cities1000.txt
+            # if city/village per http://www.geonames.org/export/codes.html
+            if line[6] == 'P':
                 count += 1
                 try:
                     names = []
@@ -71,7 +69,8 @@ def main():
                         alt_name = alt_name.replace('"','').lower()
                         if alt_name != names[0] and alt_name:
                             names.append(alt_name)
-                    if line[8] and line[10] and line[10] != '00':  # 8 = Country Code, 10 = Admin1 (State) Code, 10 == '00' means general feature in multiple states
+                    # 8 = Country Code, 10 = Admin1 (State) Code, 10 == '00' means general feature in multiple states
+                    if line[8] and line[10] and line[10] != '00':
                         try:
                             region_name = regions[(line[8] + "." + line[10]).lower()]
                         except:
@@ -127,8 +126,6 @@ def main():
                 state = county['properties']['StateName']
                 county_name = county['properties']['CountyName']
                 county_state = county_name + DELIMITER + state
-                if county_state in geonames:
-                    print("ERROR: {0} should not appear more than once!".format(county_state))
                 geonames[county_state] = (county['centroid'].y, county['centroid'].x)
                 if county_name in county_counts:
                     county_counts[county_name]['count'] += 1
@@ -141,8 +138,6 @@ def main():
             if county_counts[county]['count'] == 1:
                 if county not in geonames:
                     geonames[county] = county_counts[county]['lat_lon']
-                else:
-                    print("I'm surprised that {0} already exists...".format(county))
 
     print("{0} counties added.".format(len(geonames) - length_without_admin2))
 
