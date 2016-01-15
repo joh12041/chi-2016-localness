@@ -3,10 +3,10 @@ import csv
 import psycopg2
 import psycopg2.extras
 
-from utils import bots
+from ..utils import bots
 
 DBNAME = "<postgres-dbname>"
-VGI_REPOSITORIES = ['twitter14','twitter15','flickr100m','flickr09to12','swarm']
+VGI_REPOSITORIES = ['t51m', 't11m', 'f15m', 's8m']
 NDAY_TABLE_BASENAME = "nday_"
 GEOMETRIC_MEDIAN_FOLDER = "geo_median"
 GEOMETRIC_MEDIAN_FILENAME = "user_counties.csv"
@@ -33,7 +33,7 @@ def main():
     twitter_bots = bots.build_bots_filter()
 
     for repository in VGI_REPOSITORIES:
-        cur.execute("SELECT uid, ntime, cnt, county_fip FROM {0}{1};".format(NDAY_TABLE_BASENAME ,repository))
+        cur.execute("SELECT uid, ntime, count, fips FROM {0}{1};".format(NDAY_TABLE_BASENAME, repository))
         users = {}  # keep track of the users who have been processed
         nday_localized_users_60 = set()  # number of users who are local to at least one county when n=60 days
         nday_localized_users_30 = set()
