@@ -7,7 +7,7 @@ def build_bots_filter():
     :return: dictionary of userID strings - presence in the dictionary = organization
     """
     bot_users = {}  # dict for quick lookup
-    bots_folders = ['../humanizr/results/twitter14', '../humanizr/results/twitter15']
+    bots_folders = ['../humanizr/results/t51m', '../humanizr/results/t11m']
     for folder in bots_folders:
         bots_fn = os.listdir(folder)
         for file in bots_fn:
