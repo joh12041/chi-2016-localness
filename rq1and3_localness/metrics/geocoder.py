@@ -1,81 +1,57 @@
 ##
+#  With modifications by Isaac Johnson, but:
+#
 #  Copyright (c) 2015, Tyler Finethy, David Jurgens
 #
 #  All rights reserved. See LICENSE file for details
 ##
 
 """
-Geocoder and Reverse-Geocoder to be used by the Geolocation Project
-Allows for multiple dataset inputs
+Geocoder adapted for locating user location profile entries.
 """
 
-import os, os.path
+import os
 import csv
 import re
-import logging
-import sys
-
-sys.path.append("/export/scratch2/isaacj/vgi-localness")
-
-from utils import point_to_county
-from location_field import clean_up_geocoded
-from location_field import prep_geonames
 import argparse
 
-LOGGER = logging.getLogger(os.path.basename(__file__))
-VGI_REPOSITORY = 'jurgens_network_conservative'
+from ..utils import point_to_county
+from . import clean_up_geocoded
+from . import prep_geonames
+
+VGI_REPOSITORY = 't51m'
 
 class Geocoder(object):
+    """Geocoder initially for use on the Geolocation Inference Project."""
 
-    """
-    Geocoder to be used on the Geolocation Inference Project.
-    """
     def __init__(self,dataset="geonames"):
-        """
-        Initializes the "geocoder" dictionary from geonames
-        """
+        """Initializes the "geocoder" dictionary from geonames."""
         self.abbv_to_state = state_abbv_data()
         self.state_abbv_regex = re.compile(r'(\b' + (r'\b|\b'.join(self.abbv_to_state.keys())) + r'\b)')
         self.lc_name_to_location = {}
 
-        LOGGER.debug("Geocoder loading city-location mapping from %s" % (dataset))
-
-
         if dataset == "geonames":
             data = geonames_data()
-
             line_no = 0
             for line in data[1:]:
-                #TODO this city name should be formatted the same as incoming tweets
                 city_name = line[0].lower()
                 if not city_name:
                     continue
-
-                line_no += 1
-                if line_no % 1000000 == 0:
-                    LOGGER.debug("currently read %d locations from %s" %
-                                 (line_no, dataset))
-
                 lat = float(line[1])
                 lon = float(line[2])
                 self.lc_name_to_location[city_name] = (lat, lon)
-
-
+                line_no += 1
         else:
             raise NotImplementedError(dataset)
 
 
-        LOGGER.debug("Geocoder loaded %d locations from %s" %
-                     (len(self.lc_name_to_location), dataset))
-
     def geocode(self, location_name):
-        """
-        Returns the latitude and longitude (tuple) of a city name if found
-        """
+        """Returns the latitude and longitude (tuple) of a city name if found."""
         try:
             return self.lc_name_to_location[location_name.strip().lower()]
         except KeyError:
             return None
+
 
     def geocode_semiconservative(self, location_name):
         """
@@ -109,8 +85,7 @@ class Geocoder(object):
             #print "%s:: %s -> %s" % (abbv, name, expanded)
             name = expanded
 
-        # Once we've matched abbreivations, lower case for all further
-        # comparisons
+        # Once we've matched abbreivations, lower case for all further comparisons
         name = name.lower()
 
         if name == "washington, d.c." or name == "washington dc" or name == "washington, dc":
@@ -269,8 +244,7 @@ class Geocoder(object):
             else:
                 pass #print "CASE5: %s" % (parts)            
 
-        # Otherwise no delimiters so we're left to guess at where the name
-        # breaks
+        # Otherwise no delimiters so we're left to guess at where the name breaks
         else:
             parts = re.split(r'[ \t\n\r]+', name)
             if len(parts) == 2:
@@ -302,7 +276,6 @@ class Geocoder(object):
                     elif p1 in locs:
                         return locs[p1]
 
-
             elif len(parts) > 2:
                 # Guess that the last name is a country/state and try
                 # city/<whatever>
@@ -314,21 +287,14 @@ class Geocoder(object):
             else:
                 pass #print "CASE6: %s" % (parts)
 
-
         #print "FOUND? %s ('%s') -> %s" % (location_name, name, lat_lon)
-
-            
-
         return None
 
 
-
 def geonames_data():
-    """
-    Returns the file contents of the geolite dataset.
-    """
+    """Returns the file contents of the geonames dataset."""
     file_contents = []
-    file_name = os.path.join("location_field","geonames_countries.tsv")
+    file_name = os.path.join("resources","geonames_countries.tsv")
     with open(file_name, 'r') as fin:
         csvreader = csv.reader(fin, delimiter="\t")
         for line in csvreader:
@@ -337,10 +303,8 @@ def geonames_data():
 
 
 def state_abbv_data():
-    """
-    Returns a dict containing state abbreviations
-    """
-    file_name = os.path.join("location_field","state_table.csv")
+    """Returns a dict containing state abbreviations."""
+    file_name = os.path.join("resources","state_table.csv")
     abbv_to_state = {}
     with open(file_name, 'r') as csv_file:
         line_no = 0
@@ -356,19 +320,22 @@ def state_abbv_data():
     return abbv_to_state
 
 def main():
-
     parser = argparse.ArgumentParser()
-    parser.add_argument("--prep_geocoder",action="store_true", default=False)
+    parser.add_argument("--prep_geocoder", action = "store_true", default = False,
+                        help = "Set if geonames data needs to be converted into geocoder")
     args = parser.parse_args();
+
     # Generate geocoder from preprocessed CSV
     print("Starting...")
     if args.prep_geocoder:
         prep_geonames.main()
+
     print("Loading in geocoder...")
     gc = Geocoder()
+
     print("Geocoder created with {0} places.".format(len(gc.lc_name_to_location)))
-    location_field_data_fn = "location_field/{0}/user_locations.csv".format(VGI_REPOSITORY)
-    output_fn = "location_field/{0}/user_points.csv".format(VGI_REPOSITORY)
+    location_field_data_fn = "./{0}/user_locations.csv".format(VGI_REPOSITORY)
+    output_fn = "./{0}/user_points.csv".format(VGI_REPOSITORY)
 
     # Loop through user location field entries and geocode them
     with open(location_field_data_fn, "r") as fin:
@@ -396,10 +363,10 @@ def main():
                     print("{0} located out of {1} tried.".format(count_geolocated, count_tried))
 
     # Convert location field points to counties
-    is_vgi_median = False
-    point_to_county.main(vgi_median=is_vgi_median, locfield=True, vgi_repository=VGI_REPOSITORY)
+    point_to_county.main(geo_median=False, locfield=True, vgi_repository=VGI_REPOSITORY)
+
     # Clean up the counties and expand NYC + the Twin Cities to multiple counties
-    clean_up_geocoded.main(vgi_repository=VGI_REPOSITORY, points=is_vgi_median)
+    clean_up_geocoded.main(vgi_repository=VGI_REPOSITORY, points=False)
 
 
 if __name__ == "__main__":

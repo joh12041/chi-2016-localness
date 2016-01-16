@@ -1,8 +1,6 @@
-__author__ = 'joh12041'
-
 import csv
 
-def main(vgi_repository='jurgens_network', points=True):
+def main(vgi_repository='t51m', points=True):
     filter_out = {}  # dict for fast look-up
     with open("location_field/state_table.csv", "r") as fin:
         csvreader = csv.reader(fin)
@@ -79,29 +77,6 @@ def main(vgi_repository='jurgens_network', points=True):
     filter_out['newfoundland'] = True
     filter_out['bromley'] = True  # district in London
 
-    # urban2
-    # filter_out['essex'] = True
-    # filter_out['yorkshire'] = True
-    # filter_out['south wales'] = True
-    # filter_out['venus'] = True
-    # filter_out['north wales'] = True
-    # filter_out['lancashire'] = True
-    # filter_out['holland'] = True
-    # filter_out['somerset'] = True
-    # filter_out['hampshire'] = True
-    # filter_out['suffolk'] = True
-    # filter_out['oxfordshire'] = True
-    # filter_out['lincolnshire'] = True
-    # filter_out['isle of wight'] = True
-    # filter_out['norge'] = True  # Norway
-    # filter_out['berkshire'] = True
-    # filter_out['sussex'] = True
-    # filter_out['warwickshire'] = True
-    # filter_out['valhalla'] = True
-
-
-
-
     with open('location_field/country_codes.tsv', 'r') as fin:
         csvreader = csv.reader(fin, delimiter='\t')
         header = next(csvreader)
@@ -109,7 +84,6 @@ def main(vgi_repository='jurgens_network', points=True):
         for line in csvreader:
             country = line[country_idx].lower().strip()
             filter_out[country] = True
-
 
     fix = {}
     if points:
@@ -142,9 +116,9 @@ def main(vgi_repository='jurgens_network', points=True):
     filtered_out = 0
     locfields_removed = {}
     if points:
-        input_fn = "location_field/{0}/user_points.csv".format(vgi_repository)
+        input_fn = "./{0}/user_points.csv".format(vgi_repository)
     else:
-        input_fn = "location_field/{0}/user_counties.csv".format(vgi_repository)
+        input_fn = "./{0}/user_counties.csv".format(vgi_repository)
     with open(input_fn, "r") as fin:
         csvreader = csv.reader(fin)
         with open(input_fn.replace(".csv","_cleaned.csv"), "w") as fout:
