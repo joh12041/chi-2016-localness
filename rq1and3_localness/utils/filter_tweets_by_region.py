@@ -1,13 +1,12 @@
 """Split tweets file up by geography (e.g., one file for all tweets in Pennsylvania, one for Ohio, etc.)"""
 
 import csv
+import json
 import traceback
 
 REGION = "counties"
 INPUT_FN = "<PATH NAME TO TWITTER LOCALNESS OUTPUT CSV>"
-INPUT_HEADER = ['id', 'created_at', 'text', 'user_screen_name', 'user_description', 'user_lang', 'user_location',
-                 'user_time_zone', 'geom_src', 'uid', 'tweet', 'lon', 'lat', 'gender', 'race',
-                  'county', 'nday', 'plurality', 'geomed', 'locfield']
+INPUT_HEADER = ['tweet', 'gender', 'race', 'county', 'nday', 'plurality', 'geomed', 'locfield']
 OUTPUT_BASE_PATH = "<PATH TO FOLDER THAT WILL CONTAIN PARSED TWEET FILES>"
 
 def process_line(output_line, open_fps, state_files, region, fps):
@@ -55,16 +54,16 @@ def main():
             csvreader = csv.reader(fin)
             assert next(csvreader) == INPUT_HEADER
             geog_idx = INPUT_HEADER.index('county')
-            txt_idx = INPUT_HEADER.index('text')
-            uid_idx = INPUT_HEADER.index('uid')
+            tweet_idx = INPUT_HEADER.index('tweet')
             nday_idx = INPUT_HEADER.index('nday')
             plur_idx = INPUT_HEADER.index('plurality')
             for line in csvreader:
                 line_no += 1
                 try:
                     region = [line[geog_idx]]
-                    txt = line[txt_idx]
-                    uid = line[uid_idx]
+                    tweet = json.loads(line[tweet_idx])
+                    txt = tweet['text']
+                    uid = line['user']['id']
                     n = line[nday_idx]
                     p = line[plur_idx]
                     output_line = [txt, uid, n, p]
