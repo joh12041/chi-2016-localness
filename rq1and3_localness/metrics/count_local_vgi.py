@@ -1,8 +1,10 @@
 import csv
 import json
 import argparse
+import sys
 
-from ..utils import bots
+sys.path.append*("./utils")
+import bots
 
 INPUT_HEADER = ['id', 'created_at', 'text', 'user_screen_name', 'user_description', 'user_lang', 'user_location',
                 'user_time_zone', 'geom_src', 'uid', 'tweet', 'lon', 'lat', 'gender', 'race',

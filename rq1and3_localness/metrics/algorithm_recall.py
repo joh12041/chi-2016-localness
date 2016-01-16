@@ -1,9 +1,11 @@
 import csv
+import sys
 
 import psycopg2
 import psycopg2.extras
 
-from ..utils import bots
+sys.path.append("./utils")
+import bots
 
 DBNAME = "<postgres-dbname>"
 VGI_REPOSITORIES = ['t51m', 't11m', 'f15m', 's8m']

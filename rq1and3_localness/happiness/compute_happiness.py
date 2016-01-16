@@ -3,13 +3,16 @@
 import csv
 import os
 import argparse
+import sys
 from collections import OrderedDict
+
 
 import numpy
 from scipy.stats import spearmanr
 from scipy.stats import wilcoxon
 
-from ..utils import bots
+sys.path.append("./utils")
+import bots
 
 LOCALNESS_METRICS = ['nday','plurality']
 HAPPINESS_EVALUATIONS_FN = "../resources/happiness_evaluations.txt"

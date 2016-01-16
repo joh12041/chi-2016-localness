@@ -14,10 +14,12 @@ import os
 import csv
 import re
 import argparse
+import sys
 
-from ..utils import point_to_county
-from . import clean_up_geocoded
-from . import prep_geonames
+sys.path.append("./utils")
+import point_to_county
+import clean_up_geocoded
+import prep_geonames
 
 VGI_REPOSITORY = 't51m'
 

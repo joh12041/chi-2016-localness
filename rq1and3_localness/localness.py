@@ -1,6 +1,7 @@
 import csv
 import traceback
 import json
+import sys
 
 import psycopg2
 import psycopg2.extras
@@ -8,7 +9,8 @@ from shapely.wkt import loads
 from shapely.geometry import shape
 from shapely.geometry import box
 
-from .utils import demographic_labeling
+sys.path.append("./utils")
+import demographic_labeling
 
 COUNT_GEOTAGGED = 0
 
@@ -26,7 +28,7 @@ LOCFIELD_RESULTS_FN = "<FILE PATH TO LOCFIELD RESULTS CSV>"
 INPUT_FN = "<FILE PATH TO INPUT VGI DATA CSV>"
 INPUT_HAS_HEADER = False
 # INPUT_COLUMNS should match columns in input CSV
-# lat/lon only necessary if county hasn't been precomputed. Otherwise, county should be part of INPUT_COLUMNS
+# If county has been precomputed, then it should be part of INPUT_COLUMNS
 # EXTEND_COLUMNS are the additional columns to be computed. Gender/race are optional.
 INPUT_COLUMNS = ['tweet']
 EXTEND_COLUMNS = ['gender', 'race',
@@ -67,7 +69,9 @@ def main():
     user_regions = {}
     for row in cur:
         uid = str(row[0])  # bigint -> string
-        region = row[1][:FIPS_LENGTH]  # string
+        region = row[1]
+        if region:
+            region = region[:FIPS_LENGTH]  # string
         count_VGI = row[2]  # int
         ntime = row[3]  # PostgreSQL interval converted to datetime.timedelta by psycopg2
         if uid in user_regions:

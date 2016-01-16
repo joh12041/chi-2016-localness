@@ -38,7 +38,7 @@ def get_census_names():
 def get_census_race():
     """ Fetch census race data and remove ambiguous names. """
     pct_threshold = 90.0
-    racefn = 'demographic_labeling/app_c.csv'
+    racefn = './resources/app_c.csv'
     surname_to_race = {}
     with open(racefn, 'r') as fin:
         csvreader = csv.reader(fin)
