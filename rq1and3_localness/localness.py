@@ -1,5 +1,3 @@
-__author__ = 'joh12041'
-
 import csv
 import traceback
 import json
@@ -30,8 +28,7 @@ INPUT_HAS_HEADER = False
 # INPUT_COLUMNS should match columns in input CSV
 # lat/lon only necessary if county hasn't been precomputed. Otherwise, county should be part of INPUT_COLUMNS
 # EXTEND_COLUMNS are the additional columns to be computed. Gender/race are optional.
-INPUT_COLUMNS = ['id', 'created_at', 'text', 'user_screen_name', 'user_description', 'user_lang', 'user_location',
-                 'user_time_zone', 'geom_src', 'uid', 'tweet', 'lon', 'lat']
+INPUT_COLUMNS = ['tweet']
 EXTEND_COLUMNS = ['gender', 'race',
                   'county', 'nday', 'plurality', 'geomed', 'locfield']
 OUTPUT_COLUMNS = INPUT_COLUMNS + EXTEND_COLUMNS
@@ -132,8 +129,6 @@ def main():
         surnames_to_race = demographic_labeling.get_census_race()
 
     if COMPUTE_COUNTY_FROM_LAT_LON:
-        lat_idx = OUTPUT_COLUMNS.index('lat')
-        lon_idx = OUTPUT_COLUMNS.index('lon')
         counties_fn = 'resources/USCounties_bare.geojson'
         with open(counties_fn, 'r') as fin:
             counties_gj = json.load(fin)
@@ -155,16 +150,14 @@ def main():
     with open(OUTPUT_FN, 'w') as fout:
         csvwriter = csv.writer(fout)
         csvwriter.writerow(OUTPUT_COLUMNS)
-        with open(file, 'r') as fin:
+        with open(INPUT_FN, 'r') as fin:
             csvreader = csv.reader(fin)
-            uid_idx = OUTPUT_COLUMNS.index('uid')
             try:
                 tweet_idx = OUTPUT_COLUMNS.index('tweet')
             except ValueError:
                 tweet_idx = -1
             # alternatively replace the user_location_idx with the tweet if you have that full object and adjust code
             #  to pull location field entry from tweet json object
-            user_location_idx = OUTPUT_COLUMNS.index('user_location')
             county_idx = OUTPUT_COLUMNS.index('county')
             nday_idx = OUTPUT_COLUMNS.index('nday')
             plur_idx = OUTPUT_COLUMNS.index('plurality')
@@ -176,11 +169,13 @@ def main():
             for record in csvreader:
                 line_number += 1
                 try:
-                    uid = record[uid_idx]
+                    tweet = json.loads(record[tweet_idx])
+                    uid = tweet['user']['id']
                     record.extend(default_extend_columns)  # NOTE: using extend means that a copy is inserted
 
-                    if COMPUTE_COUNTY_FROM_LAT_LON and record[lon_idx]:  # has coordinates
-                        pt = loads('POINT ({0} {1})'.format(record[lon_idx], record[lat_idx]))
+                    if COMPUTE_COUNTY_FROM_LAT_LON and tweet['geo']:  # has coordinates
+                        pt = loads('POINT ({0} {1})'.format(
+                                tweet['geo']['coordinates'][1], tweet['geo']['coordinates'][0]))
                         region = get_county(counties, pt)
                         if region:
                             region = region[:FIPS_LENGTH]
@@ -189,7 +184,6 @@ def main():
                     record[county_idx] = region  # output file will reflect state or county scale
 
                     if COMPUTE_DEMOGRAPHICS:
-                        tweet = json.loads(record[tweet_idx])
                         gender = demographic_labeling.label_gender(tweet, males, females)
                         if gender != 'n':
                             count_gender += 1
@@ -212,7 +206,7 @@ def main():
                             record[geomed_idx] = True
                         # location field
                         try:
-                            loc_field_entry = record[user_location_idx]
+                            loc_field_entry = tweet['user']['location']
                             # location not found - make sure isn't a unicode issue
                             if loc_field_entry and loc_field_entry not in locations:
                                 loc_field_entry = loc_field_entry.encode().decode('unicode-escape')
