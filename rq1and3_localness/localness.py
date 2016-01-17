@@ -31,8 +31,7 @@ INPUT_HAS_HEADER = False
 # If county has been precomputed, then it should be part of INPUT_COLUMNS
 # EXTEND_COLUMNS are the additional columns to be computed. Gender/race are optional.
 INPUT_COLUMNS = ['tweet']
-EXTEND_COLUMNS = ['gender', 'race',
-                  'county', 'nday', 'plurality', 'geomed', 'locfield']
+EXTEND_COLUMNS = ['gender', 'race', 'county', 'nday', 'plurality', 'geomed', 'locfield']
 OUTPUT_COLUMNS = INPUT_COLUMNS + EXTEND_COLUMNS
 OUTPUT_FN = "<FILE PATH TO OUTPUT VGI DATA WITH LOCALNESS INFO APPENDED CSV>"
 
@@ -174,17 +173,20 @@ def main():
                 line_number += 1
                 try:
                     tweet = json.loads(record[tweet_idx])
-                    uid = tweet['user']['id']
+                    uid = str(tweet['user']['id'])
                     record.extend(default_extend_columns)  # NOTE: using extend means that a copy is inserted
 
-                    if COMPUTE_COUNTY_FROM_LAT_LON and tweet['geo']:  # has coordinates
-                        pt = loads('POINT ({0} {1})'.format(
-                                tweet['geo']['coordinates'][1], tweet['geo']['coordinates'][0]))
-                        region = get_county(counties, pt)
-                        if region:
-                            region = region[:FIPS_LENGTH]
+                    if COMPUTE_COUNTY_FROM_LAT_LON
+                        if tweet['geo']:  # has coordinates
+                            pt = loads('POINT ({0} {1})'.format(
+                                    tweet['geo']['coordinates'][1], tweet['geo']['coordinates'][0]))
+                            region = get_county(counties, pt)
+                        else:
+                            region = None
                     else:
-                        region = record[county_idx][:FIPS_LENGTH]
+                        region = record[county_idx]
+                    if region:
+                        region = region[:FIPS_LENGTH]
                     record[county_idx] = region  # output file will reflect state or county scale
 
                     if COMPUTE_DEMOGRAPHICS:
@@ -230,7 +232,7 @@ def main():
                 if line_number % 100000 == 0:
                     print_progress(line_number, count_failed, count_processed, count_gender, count_race, loc_failed)
             print_progress(line_number, count_failed, count_processed, count_gender, count_race, loc_failed)
-            print("VGI read in from {0} and output to {2}.".format(INPUT_FN, OUTPUT_FN))
+            print("VGI read in from {0} and output to {1}.".format(INPUT_FN, OUTPUT_FN))
 
 
 if __name__ == "__main__":
