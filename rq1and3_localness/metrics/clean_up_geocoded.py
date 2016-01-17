@@ -15,6 +15,7 @@ def main(vgi_repository='t51m', points=True):
                     filter_out[direction + line[1].lower() + ", us"] = True
                     filter_out[direction + line[2].lower() + ", us"] = True
 
+    # Most of these are not necessary - they come from an earlier version that was noisier.
     filter_out['america'] = True
     filter_out['etats-unis'] = True
     filter_out['usa'] = True
