@@ -98,13 +98,11 @@ def label_gender(tweet, males, females):
     else:
         name = name[0]
     if name in males:
-        tweet['user']['gender'] = 'm'
+        return 'm'
     elif name in females:
-        tweet['user']['gender'] = 'f'
+        return 'f'
     else:
-        tweet['user']['gender'] = 'n'
-
-    return tweet
+        return 'n'
 
 
 def label_race_by_last_name(tweet, surname_to_race):
@@ -118,8 +116,6 @@ def label_race_by_last_name(tweet, surname_to_race):
     else:
         name = name[0]
     if name in surname_to_race:
-        tweet['user']['race'] = surname_to_race[name]
+        return surname_to_race[name]
     else:
-        tweet['user']['race'] = 'n'
-
-    return tweet
+        return 'n'
