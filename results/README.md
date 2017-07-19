@@ -37,6 +37,3 @@ The original version of the paper, under the section *Different Localness Defini
 This sentence has since been corrected because that statistic 76.9% refers to VGI (not users) and includes all VGI, not just that of users who have at least one local county. The original sentiment holds true that there is a non-trivial percentage of social media for which localness is ambiguous:
 
 >"Each localness metric operationalizes a different idea of localness, and, as such, it is not a surprise that they frequently disagree as to whether an individual piece of VGI can be considered a local to a county. Plurality, n-days and geometric median agreed the most, but, for instance, their output agreed that a given tweet was local only 76.9% of the time for T-51M, and that is the highest agreement of any of the four repositories."
-
-Additionally, it is clarified in a few points in the paper that the statistics regarding the percentage of users/VGI for whom a given localness metric could determine local/non-local is *coverage* and not *recall*.
-
